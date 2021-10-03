@@ -12,7 +12,6 @@ namespace FileBackupTool
     {
         private static Settings settingsFile = new Settings();
         public static string todaysDate = DateTime.Today.ToString("MM-dd-yyy");
-        public static string todayBackupDir = Path.Combine(settingsFile.BackupSaveDirectory, settingsFile.BackupName, todaysDate);
         static void Main(string[] args)
         {
 
@@ -77,8 +76,8 @@ namespace FileBackupTool
             if (settingsFile.BackupDirectories.Length == 0)
                 return;
 
-            Directory.CreateDirectory(todayBackupDir);
-            if (Directory.Exists(todayBackupDir) == false)
+            Directory.CreateDirectory(Path.Combine(settingsFile.BackupSaveDirectory, settingsFile.BackupName, todaysDate));
+            if (Directory.Exists(Path.Combine(settingsFile.BackupSaveDirectory, settingsFile.BackupName, todaysDate)) == false)
                 return;
             foreach(var dir in settingsFile.BackupDirectories)
             {
@@ -107,7 +106,7 @@ namespace FileBackupTool
             script.Append(dirToBackup);
             script.Append("\" ");
             script.Append("\"");
-            var savePath = todayBackupDir;
+            var savePath = Path.Combine(settingsFile.BackupSaveDirectory, settingsFile.BackupName, todaysDate);
             script.Append(savePath);
             script.Append("\" ");
             script.Append(@"/E /Z /FFT /R:3 /W:10 /MT");
