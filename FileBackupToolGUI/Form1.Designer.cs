@@ -45,6 +45,8 @@ namespace FileBackupToolGUI
             this.buttonDestination = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.CurrentBackupSizeLabel = new System.Windows.Forms.Label();
+            this.buttonSave = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericMaxSizeGB)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericKeepBackups)).BeginInit();
@@ -188,12 +190,33 @@ namespace FileBackupToolGUI
             this.label8.TabIndex = 16;
             this.label8.Text = "Backup Root Folder";
             // 
+            // CurrentBackupSizeLabel
+            // 
+            this.CurrentBackupSizeLabel.AutoSize = true;
+            this.CurrentBackupSizeLabel.Location = new System.Drawing.Point(13, 427);
+            this.CurrentBackupSizeLabel.Name = "CurrentBackupSizeLabel";
+            this.CurrentBackupSizeLabel.Size = new System.Drawing.Size(97, 13);
+            this.CurrentBackupSizeLabel.TabIndex = 17;
+            this.CurrentBackupSizeLabel.Text = "Total Backup Size:";
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonSave.Location = new System.Drawing.Point(682, 195);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(123, 33);
+            this.buttonSave.TabIndex = 18;
+            this.buttonSave.Text = "Save";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            // 
             // Form1
             // 
-            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(817, 450);
+            this.Controls.Add(this.buttonSave);
+            this.Controls.Add(this.CurrentBackupSizeLabel);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.buttonDestination);
@@ -210,8 +233,12 @@ namespace FileBackupToolGUI
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numericMaxSizeGB);
             this.Controls.Add(this.listBox_BackupDirs);
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(833, 489);
+            this.MinimumSize = new System.Drawing.Size(833, 489);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "File Backup Tool";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericMaxSizeGB)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericKeepBackups)).EndInit();
@@ -238,6 +265,8 @@ namespace FileBackupToolGUI
         private System.Windows.Forms.Button buttonDestination;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label CurrentBackupSizeLabel;
+        private System.Windows.Forms.Button buttonSave;
     }
 }
 
