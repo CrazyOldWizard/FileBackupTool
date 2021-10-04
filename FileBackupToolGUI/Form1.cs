@@ -63,6 +63,7 @@ namespace FileBackupToolGUI
             {
                 textBoxDestinationPath.Text = fd.SelectedPath;
             }
+            UpdateTotalBackupSizeLabel();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -79,7 +80,12 @@ namespace FileBackupToolGUI
             numericKeepBackups.Value = SettingsFile.KeepBackupsFor;
             numericMaxSizeGB.Value = SettingsFile.BackupSizeGB;
             textBoxBackupName.Text = SettingsFile.BackupName;
-            if(Directory.Exists(textBoxDestinationPath.Text)) // make this work faster over a network connection by making it it's own thread
+            UpdateTotalBackupSizeLabel();
+        }
+
+        public void UpdateTotalBackupSizeLabel()
+        {
+            if (Directory.Exists(textBoxDestinationPath.Text)) // make this work faster over a network connection by making it it's own thread?
             {
                 var dInfo = new DirectoryInfo(textBoxDestinationPath.Text);
                 currentBackupSizeBytes = DirSize(dInfo);
@@ -87,6 +93,7 @@ namespace FileBackupToolGUI
                 CurrentBackupSizeLabel.Text = "Total Backup Size: " + gb.ToString() + " GB";
             }
         }
+
 
         public long DirSize(DirectoryInfo d)
         {
@@ -121,7 +128,7 @@ namespace FileBackupToolGUI
             SettingsFile.BackupInterval = decimal.ToInt32(numericInterval.Value);
             SettingsFile.BackupSizeGB = decimal.ToInt32(numericMaxSizeGB.Value);
             SettingsFile.BackupName = textBoxBackupName.Text;
-            var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(SettingsFile);
+            var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(SettingsFile, Newtonsoft.Json.Formatting.Indented);
             File.WriteAllText(settingsFilePath, jsonString);
             MessageBox.Show("Saved settings file.");
         }

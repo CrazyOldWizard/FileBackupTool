@@ -17,28 +17,34 @@ namespace FileBackupTool
 
             if(args.Contains("SettingsUI"))
             {
-                //open settings ui instead
+                
                 return;
             }
 
-            //read and update settings from json file.
-            var setSettings = ReadSettingsFile();
-            if(setSettings == false)
+            while (true)
             {
-                Console.WriteLine("Backup failed - couldn't read settings file.");
-                return;
+                //read and update settings from json file.
+                var setSettings = ReadSettingsFile();
+                if (setSettings == false)
+                {
+                    Console.WriteLine("Backup failed - couldn't read settings file.");
+                    return;
+                }
+                if(Directory.Exists(settingsFile.BackupSaveDirectory))
+                {
+                    DeleteOldBackups();
+                    BackupFiles();
+                }
+                System.Threading.Thread.Sleep(settingsFile.BackupInterval * 60000);
             }
-
-
-            DeleteOldBackups();
-            BackupFiles();
+            
 
         }
 
         private static bool ReadSettingsFile()
         {
             //settings file path
-            var settingsFilePath = Path.Combine(settingsFile.InstallFolder, "SettingsFile.json");
+            var settingsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SettingsFile.json");
             if (File.Exists(settingsFilePath))
             {
                 try
@@ -99,6 +105,7 @@ namespace FileBackupTool
         private static string GetRoboCopyScript(string dirToBackup, string BackupDir)
         {
             Console.WriteLine("Creating robocopy script...");
+            var dirInfo = new DirectoryInfo(dirToBackup);
             var script = new StringBuilder();
 
             script.Append("/C robocopy ");
@@ -106,7 +113,7 @@ namespace FileBackupTool
             script.Append(dirToBackup);
             script.Append("\" ");
             script.Append("\"");
-            var savePath = Path.Combine(settingsFile.BackupSaveDirectory, settingsFile.BackupName, todaysDate);
+            var savePath = Path.Combine(settingsFile.BackupSaveDirectory, settingsFile.BackupName, todaysDate, dirInfo.Name);
             script.Append(savePath);
             script.Append("\" ");
             script.Append(@"/E /Z /FFT /R:3 /W:10 /MT");
@@ -116,33 +123,38 @@ namespace FileBackupTool
         private static void DeleteOldBackups()
         {
             var dirs = Directory.GetDirectories(settingsFile.BackupSaveDirectory);
-
             var backupDirs = new List<DirectoryInfo>();
-            
-            //loop through all backups and check to see if they are old enough to be deleted
-            foreach (var dir in dirs)
+
+            foreach (var dir in dirs)//loop through all the days in each backup and add them to the list
             {
-                var dInfo = new DirectoryInfo(dir);
-                if (dInfo.LastWriteTimeUtc < DateTime.UtcNow.AddDays(-Math.Abs(settingsFile.KeepBackupsFor)))
+                var subDs = Directory.GetDirectories(dir);
+                foreach(var d in subDs)
                 {
-                    try
+                    var dInfo = new DirectoryInfo(d);
+                    if (dInfo.LastWriteTimeUtc < DateTime.UtcNow.AddDays(-Math.Abs(settingsFile.KeepBackupsFor)))
                     {
-                        Console.WriteLine($"Deleting {dInfo.FullName}");
-                        dInfo.Delete(true);
+                        try
+                        {
+                            Console.WriteLine($"Deleting {dInfo.FullName}");
+                            dInfo.Delete(true);
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"Failed to delete {dInfo.FullName}");
+                        }
                     }
-                    catch
+                    else
                     {
-                        Console.WriteLine($"Failed to delete {dInfo.FullName}");
+                        backupDirs.Add(dInfo);
                     }
+                    
                 }
-
-                backupDirs.Add(dInfo);
             }
-
+            
             //sort backup directories by date - oldest first
             backupDirs.OrderBy(d => d.LastWriteTimeUtc).ToList();
             //set max backup size in bytes
-            var maxBackupSize = settingsFile.BackupSizeGB * (long)1073741824;
+            var maxBackupSize = settingsFile.BackupSizeGB * (long)1000000000;
             //get current backup size
             var currentBackupSize = DirSize(new DirectoryInfo(settingsFile.BackupSaveDirectory));
             if(currentBackupSize > maxBackupSize)
@@ -165,7 +177,7 @@ namespace FileBackupTool
                     catch (Exception e)
                     {
                         Console.WriteLine(e.Message);
-                        return;
+                        continue;
                     }
                 }
 
