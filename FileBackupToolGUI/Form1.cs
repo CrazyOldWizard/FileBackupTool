@@ -43,12 +43,26 @@ namespace FileBackupToolGUI
 
         private void buttonSource_Click(object sender, EventArgs e)
         {
-
+            var fd = new FolderBrowserDialog();
+            fd.RootFolder = Environment.SpecialFolder.Desktop;
+            fd.ShowNewFolderButton = true;
+            var result = fd.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                listBox_BackupDirs.Items.Add(fd.SelectedPath);
+            }
         }
 
         private void buttonDestination_Click(object sender, EventArgs e)
         {
-
+            var fd = new FolderBrowserDialog();
+            fd.RootFolder = Environment.SpecialFolder.Desktop;
+            fd.ShowNewFolderButton = true;
+            var result = fd.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                textBoxDestinationPath.Text = fd.SelectedPath;
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -65,12 +79,12 @@ namespace FileBackupToolGUI
             numericKeepBackups.Value = SettingsFile.KeepBackupsFor;
             numericMaxSizeGB.Value = SettingsFile.BackupSizeGB;
             textBoxBackupName.Text = SettingsFile.BackupName;
-            if(Directory.Exists(textBoxDestinationPath.Text))
+            if(Directory.Exists(textBoxDestinationPath.Text)) // make this work faster over a network connection by making it it's own thread
             {
                 var dInfo = new DirectoryInfo(textBoxDestinationPath.Text);
                 currentBackupSizeBytes = DirSize(dInfo);
-                var gb = currentBackupSizeBytes * (long)1073741824;
-                CurrentBackupSizeLabel.Text = gb.ToString() + " GB";
+                var gb = currentBackupSizeBytes / (long)1073741824;
+                CurrentBackupSizeLabel.Text = "Total Backup Size: " + gb.ToString() + " GB";
             }
         }
 
@@ -98,7 +112,8 @@ namespace FileBackupToolGUI
             var backupDirs = new List<string>();
             foreach (var item in listBox_BackupDirs.Items)
             {
-                backupDirs.Add(item.ToString()); //not sure if this works
+                if(item.ToString() != string.Empty)
+                    backupDirs.Add(item.ToString());
             }
             SettingsFile.BackupDirectories = backupDirs.ToArray();
             SettingsFile.KeepBackupsFor = decimal.ToInt32(numericKeepBackups.Value);
@@ -109,6 +124,13 @@ namespace FileBackupToolGUI
             var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(SettingsFile);
             File.WriteAllText(settingsFilePath, jsonString);
             MessageBox.Show("Saved settings file.");
+        }
+
+        private void buttonRemoveBackupItem_Click(object sender, EventArgs e)
+        {
+            var currentItem = listBox_BackupDirs.SelectedIndex;
+            listBox_BackupDirs.Items.RemoveAt(currentItem);
+            MessageBox.Show("Deleted Item");
         }
     }
 }

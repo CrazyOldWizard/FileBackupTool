@@ -47,6 +47,7 @@ namespace FileBackupToolGUI
             this.label8 = new System.Windows.Forms.Label();
             this.CurrentBackupSizeLabel = new System.Windows.Forms.Label();
             this.buttonSave = new System.Windows.Forms.Button();
+            this.buttonRemoveBackupItem = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericMaxSizeGB)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericKeepBackups)).BeginInit();
@@ -210,11 +211,22 @@ namespace FileBackupToolGUI
             this.buttonSave.UseVisualStyleBackColor = true;
             this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
             // 
+            // buttonRemoveBackupItem
+            // 
+            this.buttonRemoveBackupItem.Location = new System.Drawing.Point(682, 422);
+            this.buttonRemoveBackupItem.Name = "buttonRemoveBackupItem";
+            this.buttonRemoveBackupItem.Size = new System.Drawing.Size(123, 23);
+            this.buttonRemoveBackupItem.TabIndex = 19;
+            this.buttonRemoveBackupItem.Text = "Remove Backup Item";
+            this.buttonRemoveBackupItem.UseVisualStyleBackColor = true;
+            this.buttonRemoveBackupItem.Click += new System.EventHandler(this.buttonRemoveBackupItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(817, 450);
+            this.Controls.Add(this.buttonRemoveBackupItem);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.CurrentBackupSizeLabel);
             this.Controls.Add(this.label8);
@@ -267,6 +279,7 @@ namespace FileBackupToolGUI
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label CurrentBackupSizeLabel;
         private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.Button buttonRemoveBackupItem;
     }
 }
 
