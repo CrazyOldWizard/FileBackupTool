@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -155,6 +156,50 @@ namespace FileBackupToolGUI
             var currentItem = listBox_BackupDirs.SelectedIndex;
             listBox_BackupDirs.Items.RemoveAt(currentItem);
             MessageBox.Show("Deleted Item");
+        }
+
+        private void openCurrentDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("explorer.exe", AppDomain.CurrentDomain.BaseDirectory);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void backupFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Directory.Exists(SettingsFile.BackupSaveDirectory))
+            {
+                Process.Start("explorer.exe", SettingsFile.BackupSaveDirectory);
+            }
+            else
+                MessageBox.Show("Couldn't find backup folder");
+        }
+
+        private void startBackupToolToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            stopBackupToolToolStripMenuItem_Click(null, null);
+            var pinfo = new ProcessStartInfo();
+            pinfo.Arguments = @"/C " + $"\"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FileBackupTool.exe")}\"";
+            pinfo.FileName = "CMD.EXE";
+            pinfo.UseShellExecute = false;
+            pinfo.CreateNoWindow = true;
+            Process.Start(pinfo);
+
+        }
+
+        private void stopBackupToolToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var processess = Process.GetProcessesByName("FileBackupTool");
+            if (processess != null)
+            {
+                foreach (var p in processess)
+                {
+                    p.Kill();
+                }
+            }
         }
     }
 }
