@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FileBackupTool;
+using Microsoft.Win32.TaskScheduler;
 using Newtonsoft;
 
 namespace FileBackupToolGUI
@@ -130,7 +131,23 @@ namespace FileBackupToolGUI
             SettingsFile.BackupName = textBoxBackupName.Text;
             var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(SettingsFile, Newtonsoft.Json.Formatting.Indented);
             File.WriteAllText(settingsFilePath, jsonString);
+            CreateStartupTask();
             MessageBox.Show("Saved settings file.");
+        }
+
+        private Microsoft.Win32.TaskScheduler.Task CreateStartupTask()
+        {
+            string taskName = "FileBackupTool";
+            var x = TaskService.Instance.FindTask(taskName, true);
+            if (x != null)
+            {
+                return x;
+            }
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FileBackupTool.exe");
+            var t = TaskService.Instance.AddTask(taskName, QuickTriggerType.Logon, path);
+            t.Definition.Principal.RunLevel = TaskRunLevel.Highest;
+            t.RegisterChanges();
+            return t;
         }
 
         private void buttonRemoveBackupItem_Click(object sender, EventArgs e)
