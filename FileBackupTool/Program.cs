@@ -59,19 +59,19 @@ namespace FileBackupTool
                         Console.WriteLine("Success");
                         return true;
                     }
-                    Console.WriteLine("settings file couldn't be deserialized!");
+                    WriteToLog("Settings file couldn't be deserialized!", EventLogEntryType.Error);
                     return false;
                 }
                 catch(Exception e)
                 {
                     Console.WriteLine("Couldn't read json file!");
-                    Console.WriteLine(e.Message);
+                    WriteToLog(e.Message, EventLogEntryType.Error);
                     return false;
                 }
             }
             else
             {
-                Console.WriteLine("Failed to read settings file");
+                WriteToLog("Failed to read settings file", EventLogEntryType.Error);
                 return false;
             }    
         }
@@ -87,8 +87,9 @@ namespace FileBackupTool
                 return;
             foreach(var dir in settingsFile.BackupDirectories)
             {
-                Console.WriteLine($"Backing up {dir}");
                 string roboCopyScirpt = GetRoboCopyScript(dir, settingsFile.BackupSaveDirectory);
+                Console.WriteLine($"Backing up {dir}");
+                WriteToLog($"Backing up {dir}" + $" Script: {roboCopyScirpt}", EventLogEntryType.Information);
 
                 Console.WriteLine("Starting robocopy...");
                 Process rc = new Process();
@@ -100,6 +101,17 @@ namespace FileBackupTool
                 rc.WaitForExit();
                 Console.WriteLine("Robocopy finished...");
             }
+        }
+
+
+        private static void WriteToLog(string message, EventLogEntryType entryType)
+        {
+            using (EventLog eventLog = new EventLog("Application"))
+            {
+                eventLog.Source = "FileBackupTool";
+                eventLog.WriteEntry(message, entryType);
+            }
+            Console.WriteLine(message);
         }
 
         private static string GetRoboCopyScript(string dirToBackup, string BackupDir)
@@ -137,10 +149,12 @@ namespace FileBackupTool
                         {
                             Console.WriteLine($"Deleting {dInfo.FullName}");
                             dInfo.Delete(true);
+                            WriteToLog($"Deleted {dInfo.FullName} - Reason: Older than {settingsFile.KeepBackupsFor} days.", EventLogEntryType.Information);
                         }
                         catch
                         {
                             Console.WriteLine($"Failed to delete {dInfo.FullName}");
+                            WriteToLog($"Failed to delete {dInfo.FullName}", EventLogEntryType.Error);
                         }
                     }
                     else
@@ -168,6 +182,8 @@ namespace FileBackupTool
                         Console.WriteLine($"Deleting directory {dir.FullName} because backup is bigger than max backup size");
                         dir.Delete(true);
                         Console.WriteLine("Success");
+                        WriteToLog($"Deleted directory {dir.FullName} " +
+                            $"because backup is bigger than max backup size ({settingsFile.BackupSizeGB}GB)", EventLogEntryType.Information);
                         currentBackupSize -= currentDirSize;
                         if (currentBackupSize < maxBackupSize)
                         {
@@ -177,6 +193,7 @@ namespace FileBackupTool
                     catch (Exception e)
                     {
                         Console.WriteLine(e.Message);
+                        WriteToLog($"Removing directory to make space failed! Reason: {e.Message}", EventLogEntryType.Error);
                         continue;
                     }
                 }
