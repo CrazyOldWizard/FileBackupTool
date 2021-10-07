@@ -128,7 +128,7 @@ namespace FileBackupTool
             var savePath = Path.Combine(settingsFile.BackupSaveDirectory, settingsFile.BackupName, todaysDate, dirInfo.Name);
             script.Append(savePath);
             script.Append("\" ");
-            script.Append(@"/E /Z /FFT /R:3 /W:10 /MT");
+            script.Append(@"/E /Z /FFT /R:3 /W:10 /IPG:10"); //ipg = deley/throttle + if using ipg you can't use /MT for multi-threading
             return script.ToString();
         }
 

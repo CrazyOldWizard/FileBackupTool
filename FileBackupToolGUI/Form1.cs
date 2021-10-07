@@ -200,6 +200,14 @@ namespace FileBackupToolGUI
                     p.Kill();
                 }
             }
+            processess = Process.GetProcessesByName("Robocopy");
+            if (processess != null)
+            {
+                foreach (var p in processess)
+                {
+                    p.Kill();
+                }
+            }
         }
     }
 }
