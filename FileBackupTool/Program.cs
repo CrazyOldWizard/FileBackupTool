@@ -178,6 +178,7 @@ namespace FileBackupTool
                 {
                     try
                     {
+                        currentBackupSize = DirSize(new DirectoryInfo(settingsFile.BackupSaveDirectory));
                         var currentDirSize = DirSize(dir);
                         Console.WriteLine($"Deleting directory {dir.FullName} because backup is bigger than max backup size");
                         dir.Delete(true);
